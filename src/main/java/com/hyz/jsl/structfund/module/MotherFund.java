@@ -16,6 +16,7 @@ public class MotherFund extends StructFund implements Comparable<MotherFund> {
     public AFund aFund;
     public BFund bFund;
     public float splitPremiumRate;
+    public float splitABPrice;
     public float estimatedValue;
 
     @Override

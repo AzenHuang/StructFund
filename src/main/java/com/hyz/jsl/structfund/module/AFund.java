@@ -84,6 +84,9 @@ public class AFund extends StructFund {
         public String fundaLowerRecalcRt;
         @SerializedName("fundb_upper_recalc_rt")
         public String fundbUpperRecalcRt;
+        /**
+         * A基涨幅
+         */
         @SerializedName("funda_increase_rt")
         public String fundaIncreaseRt;
         @SerializedName("funda_left_year")
@@ -141,6 +144,9 @@ public class AFund extends StructFund {
         public String nextRecalcDt;
         @SerializedName("lower_recalc_profit_rt")
         public String lowerRecalcProfitRt;
+        /**
+         * A基份额新增
+         */
         @SerializedName("funda_amount_increase")
         public String fundaAmountIncrease;
         @SerializedName("funda_amount")
