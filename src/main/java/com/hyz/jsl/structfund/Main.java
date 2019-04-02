@@ -10,14 +10,14 @@ import java.util.*;
 
 public class Main {
     public static final String COMMA = ",";
-    public static final int MIN_VOLUME = 20;
-    public static final float MIN_PREMIUM_RATE = 0.02F;
+    public static final int MIN_VOLUME = 40;
+    public static final float MIN_PREMIUM_RATE = 0.015F;
     private static Map<String, AFund> aFundMap;
     private static Map<String, BFund> bFundMap;
     private static Set<String> applyFailedMFunds = new HashSet<>();
 
     static {
-//        applyFailedMFunds.add("163113");//申万证券
+        applyFailedMFunds.add("163113");//申万证券
         applyFailedMFunds.add("165515");//信诚300
         applyFailedMFunds.add("161720");//招商券商分级
         applyFailedMFunds.add("160633");//鹏华券商分级
@@ -79,15 +79,15 @@ public class Main {
             }
 
         }
-
+        String limitDesc = "-成交" + MIN_VOLUME + "-溢价" + MIN_PREMIUM_RATE+"-";
         Collections.sort(volumedMotherFundList);
-        File volumedFile = new File("data/StructFund-volumed-"
+        File volumedFile = new File("data/StructFund-volumed-"+limitDesc
                 + new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date())
                 + ".csv");
         saveCsvFile(volumedMotherFundList,volumedFile);
 
         Collections.sort(targetMotherFundList);
-        File targetFile = new File("data/StructFund-target-"
+        File targetFile = new File("data/StructFund-target-"+limitDesc
                 + new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date())
                 + ".csv");
         saveCsvFile(targetMotherFundList,targetFile);
@@ -106,8 +106,8 @@ public class Main {
 
         BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile)));
         bufferedWriter.write("母基代码,母基名称,整体溢价率,T-1溢价率,T-2溢价率,分拆价,母基估值,母基净值,申购费率" +
-                ",A基名称,A基代码,A价格,A涨幅,A净值,A折价率,A新增万份" +
-                ",B基名称,B基代码,B价格,B涨幅,B估值,B净值,B溢价率,B新增万份" +
+                ",A基名称,A基代码,A价格,A涨幅,A净值,A折价率,A新增万份,A成交万元" +
+                ",B基名称,B基代码,B价格,B涨幅,B估值,B净值,B溢价率,B新增万份,B成交万元" +
                 ",A:B,跟踪指数,指数涨幅");
 
         DecimalFormat dot4Format = new DecimalFormat("0.0000");
@@ -140,6 +140,7 @@ public class Main {
                     .append(aFund.cell.fundaValue).append(COMMA)
                     .append(aFund.cell.fundaDiscountRt).append(COMMA)
                     .append(aFund.cell.fundaAmountIncrease).append(COMMA)
+                    .append(aFund.cell.fundaVolume).append(COMMA)
 
                     //B基
                     .append(bFund.cell.fundbName).append(COMMA)
@@ -150,6 +151,7 @@ public class Main {
                     .append(bFund.cell.fundbValue).append(COMMA)
                     .append(bFund.cell.fundbDiscountRt).append(COMMA)
                     .append(bFund.cell.fundBAmountIncrease).append(COMMA)
+                    .append(bFund.cell.fundbVolume).append(COMMA)
 
                     //其他
                     .append(motherFund.cell.aRatio + ":" + motherFund.cell.bRatio).append(COMMA)
