@@ -16,6 +16,7 @@ public class MotherFund extends StructFund implements Comparable<MotherFund> {
     public AFund aFund;
     public BFund bFund;
     public float splitPremiumRate;
+    public float expectedProfitRate;
     public float splitABPrice;
     public float estimatedValue;
 
@@ -24,9 +25,9 @@ public class MotherFund extends StructFund implements Comparable<MotherFund> {
         if (compared == null) {
             return 1;
         }
-        if (splitPremiumRate == compared.splitPremiumRate) {
+        if (expectedProfitRate == compared.expectedProfitRate) {
             return 0;
-        } else if (splitPremiumRate > compared.splitPremiumRate){
+        } else if (expectedProfitRate > compared.expectedProfitRate){
             return 1;
         } else {
             return -1;

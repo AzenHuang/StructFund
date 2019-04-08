@@ -1,6 +1,5 @@
 package com.hyz.jsl.structfund;
 
-import com.google.gson.Gson;
 import com.hyz.jsl.structfund.module.*;
 import retrofit2.Call;
 
@@ -11,16 +10,35 @@ import java.util.*;
 public class Main {
     public static final String COMMA = ",";
     public static final int MIN_VOLUME = 40;
-    public static final float MIN_PREMIUM_RATE = 0.015F;
+    public static final float MIN_PROFIT_RATE = 0.015F;
     private static Map<String, AFund> aFundMap;
     private static Map<String, BFund> bFundMap;
     private static Set<String> applyFailedMFunds = new HashSet<>();
+    private static Map<String,Integer> mFundsMinApplyMap = new HashMap<>();
+    private static final int DEFAULT_MIN_APPLY_VALUE = 1000;
+    private static final int DEFAULT_MIN_CONFIRM_VALUE = 1000;
 
     static {
+        //5W申购失败
         applyFailedMFunds.add("163113");//申万证券
+        //1K申购失败
         applyFailedMFunds.add("165515");//信诚300
+        applyFailedMFunds.add("502053");//长盛券商分级
+        applyFailedMFunds.add("160630");//鹏华国防分级
+        //最低限额
         applyFailedMFunds.add("161720");//招商券商分级
         applyFailedMFunds.add("160633");//鹏华券商分级
+
+    }
+
+    static {
+        mFundsMinApplyMap.put("502010", 50000);//证券分级，申5W给1K
+        mFundsMinApplyMap.put("160221", 50000);//国泰有色，限额5W
+//        mFundsMinApplyMap.put("160630", ？？？);//鹏华国防分级
+        mFundsMinApplyMap.put("161024", 1000);//军工分级
+        mFundsMinApplyMap.put("161025", 1000);//移动互联
+        mFundsMinApplyMap.put("161027", 1000);//证券分级
+        mFundsMinApplyMap.put("163109", 1000);//申万深成
 
     }
 
@@ -72,14 +90,17 @@ public class Main {
                 } catch (ParseException e) {
                     //ignore
                 }
-                float safesPremiumRate = MIN_PREMIUM_RATE + applyFee;
-                if(!applyFailedMFunds.contains(motherFund.cell.baseFundId) && motherFund.splitPremiumRate > safesPremiumRate){
+                Integer minApply = mFundsMinApplyMap.containsKey(motherFund.cell.baseFundId) ? mFundsMinApplyMap.get(motherFund.cell.baseFundId) : DEFAULT_MIN_APPLY_VALUE;
+                float capitalCost = (minApply / 10000F * 2F) / DEFAULT_MIN_CONFIRM_VALUE;
+//                float safesPremiumRate = MIN_PROFIT_RATE + applyFee;
+                motherFund.expectedProfitRate = motherFund.splitPremiumRate - applyFee - capitalCost;
+                if(!applyFailedMFunds.contains(motherFund.cell.baseFundId) && motherFund.expectedProfitRate > MIN_PROFIT_RATE){
                     targetMotherFundList.add(motherFund);
                 }
             }
 
         }
-        String limitDesc = "-成交" + MIN_VOLUME + "-溢价" + MIN_PREMIUM_RATE+"-";
+        String limitDesc = "-成交" + MIN_VOLUME + "-收益率阈值" + MIN_PROFIT_RATE +"-";
         Collections.sort(volumedMotherFundList);
         File volumedFile = new File("data/StructFund-volumed-"+limitDesc
                 + new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date())
@@ -105,7 +126,7 @@ public class Main {
 
 
         BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile)));
-        bufferedWriter.write("母基代码,母基名称,整体溢价率,T-1溢价率,T-2溢价率,分拆价,母基估值,母基净值,申购费率" +
+        bufferedWriter.write("母基代码,母基名称,预期套利收益率,T溢价率,T-1溢价率,T-2溢价率,分拆价,母基估值,母基净值,申购费率" +
                 ",A基名称,A基代码,A价格,A涨幅,A净值,A折价率,A新增万份,A成交万元" +
                 ",B基名称,B基代码,B价格,B涨幅,B估值,B净值,B溢价率,B新增万份,B成交万元" +
                 ",A:B,跟踪指数,指数涨幅");
@@ -125,6 +146,7 @@ public class Main {
             //母基
             sb.append(motherFund.cell.baseFundId).append(COMMA)
                     .append(motherFund.cell.baseFundNm).append(COMMA)
+                    .append(percent2Format.format(motherFund.expectedProfitRate)).append(COMMA)
                     .append(percent2Format.format(motherFund.splitPremiumRate)).append(COMMA)
                     .append(aFund.cell.fundaBaseEstDisRtT1).append(COMMA)
                     .append(aFund.cell.fundaBaseEstDisRtT2).append(COMMA)
