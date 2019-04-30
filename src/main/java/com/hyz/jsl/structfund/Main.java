@@ -48,8 +48,9 @@ public class Main {
 
     static {
         mFundsConfirmMap.put("502010", 1000);//易方达证券分级，申5W给1K
-        mFundsConfirmMap.put("502003", 50000);//易方达军工分级，申5W给1K
+        mFundsConfirmMap.put("502003", 1000);//易方达军工分级，申5W给1K
         mFundsConfirmMap.put("160221", 50000);//国泰有色，限额5W
+        mFundsConfirmMap.put("161720", 100);//招商券商分级
     }
 
     public static void main(String[] args) throws IOException {
