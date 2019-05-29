@@ -28,6 +28,8 @@ public class Main {
         applyFailedMFunds.add("165515");//信诚300
         applyFailedMFunds.add("502053");//长盛券商分级
         applyFailedMFunds.add("160630");//鹏华国防分级
+        applyFailedMFunds.add("160637");//鹏华创业指基
+
         //最低限额
         applyFailedMFunds.add("161720");//招商券商分级
         applyFailedMFunds.add("160633");//鹏华券商分级
@@ -37,6 +39,7 @@ public class Main {
     static {
         mFundsMinApplyMap.put("502010", 50000);//易方达证券分级，申5W给1K
         mFundsMinApplyMap.put("502003", 50000);//易方达军工分级，申5W给1K
+        mFundsMinApplyMap.put("161118", 50000);//易方达中小板指数分级，申5W给1K
         mFundsMinApplyMap.put("160221", 50000);//国泰有色，限额5W
 //        mFundsMinApplyMap.put("160630", ？？？);//鹏华国防分级
         mFundsMinApplyMap.put("161024", 1000);//军工分级
@@ -49,6 +52,7 @@ public class Main {
     static {
         mFundsConfirmMap.put("502010", 1000);//易方达证券分级，申5W给1K
         mFundsConfirmMap.put("502003", 1000);//易方达军工分级，申5W给1K
+        mFundsConfirmMap.put("161118", 1000);//易方达中小板指数分级，
         mFundsConfirmMap.put("160221", 50000);//国泰有色，限额5W
         mFundsConfirmMap.put("161720", 100);//招商券商分级
     }
@@ -89,6 +93,7 @@ public class Main {
             motherFund.splitABPrice = (aPrice * motherFund.cell.aRatio + bPrice * motherFund.cell.bRatio) / (motherFund.cell.aRatio + motherFund.cell.bRatio);
             motherFund.splitPremiumRate = (aPrice*motherFund.cell.aRatio + bPrice*motherFund.cell.bRatio) / (motherFund.estimatedValue * (motherFund.cell.aRatio + motherFund.cell.bRatio) ) - 1;
 
+
             float aFundVolume = Float.parseFloat(motherFund.aFund.cell.fundaVolume);
             float bFundVolume = Float.parseFloat(motherFund.bFund.cell.fundbVolume);
 
@@ -103,6 +108,10 @@ public class Main {
             float capitalCost = (minApply / 10000F * 2F) / confirmValue;
 //                float safesPremiumRate = MIN_PROFIT_RATE + applyFee;
             motherFund.expectedProfitRate = motherFund.splitPremiumRate - applyFee - capitalCost;
+
+            float aFundAmountIncrease = Float.parseFloat(motherFund.aFund.cell.fundaAmountIncrease);
+            float bFundAmountIncrease = Float.parseFloat(motherFund.bFund.cell.fundBAmountIncrease);
+            motherFund.applyAccountNum = (int) ((aFundAmountIncrease + bFundAmountIncrease) * 10000 / motherValue / confirmValue);
 
             if (aFundVolume > MIN_A_VOLUME && bFundVolume > MIN_VOLUME) {
                 volumedMotherFundList.add(motherFund);
@@ -147,7 +156,7 @@ public class Main {
 
 
         BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile)));
-        bufferedWriter.write("母基代码,母基名称,预期套利收益率,T溢价率,T-1溢价率,T-2溢价率,分拆价,母基估值,母基净值,申购费率" +
+        bufferedWriter.write("母基代码,母基名称,预期套利收益率,套利户数,T溢价率,T-1溢价率,T-2溢价率,分拆价,母基估值,母基净值,申购费率" +
                 ",A基名称,A基代码,A价格,A涨幅,A净值,A折价率,A新增万份,A成交万元" +
                 ",B基名称,B基代码,B价格,B涨幅,B估值,B净值,B溢价率,B新增万份,B成交万元" +
                 ",A:B,跟踪指数,指数涨幅");
@@ -168,6 +177,7 @@ public class Main {
             sb.append(motherFund.cell.baseFundId).append(COMMA)
                     .append(motherFund.cell.baseFundNm).append(COMMA)
                     .append(percent2Format.format(motherFund.expectedProfitRate)).append(COMMA)
+                    .append(motherFund.applyAccountNum).append(COMMA)
                     .append(percent2Format.format(motherFund.splitPremiumRate)).append(COMMA)
                     .append(aFund.cell.fundaBaseEstDisRtT1).append(COMMA)
                     .append(aFund.cell.fundaBaseEstDisRtT2).append(COMMA)

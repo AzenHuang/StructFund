@@ -19,6 +19,8 @@ public class MotherFund extends StructFund implements Comparable<MotherFund> {
     public float expectedProfitRate;
     public float splitABPrice;
     public float estimatedValue;
+    //预估套利申购户数
+    public int applyAccountNum;
 
     @Override
     public int compareTo(MotherFund compared) {
@@ -200,6 +202,9 @@ public class MotherFund extends StructFund implements Comparable<MotherFund> {
         public Object minApplyAmount;
         @SerializedName("notes")
         public String notes;
+        /**
+         * 母基净值
+         */
         @SerializedName("price")
         public String price;
         @SerializedName("last_chg_dt")
