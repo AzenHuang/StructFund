@@ -1,10 +1,16 @@
 package com.hyz.jsl.structfund;
 
-import com.hyz.jsl.structfund.module.*;
+import com.hyz.jsl.structfund.module.AFund;
+import com.hyz.jsl.structfund.module.BFund;
+import com.hyz.jsl.structfund.module.MotherFund;
+import com.hyz.jsl.structfund.module.StructFundResult;
 import retrofit2.Call;
 
 import java.io.*;
-import java.text.*;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Main {
@@ -116,7 +122,9 @@ public class Main {
             if (aFundVolume > MIN_A_VOLUME && bFundVolume > MIN_VOLUME) {
                 volumedMotherFundList.add(motherFund);
 
-                if(!applyFailedMFunds.contains(motherFund.cell.baseFundId) && motherFund.expectedProfitRate > MIN_PROFIT_RATE){
+                if (motherFund.applyAccountNum > 0
+//                        && !applyFailedMFunds.contains(motherFund.cell.baseFundId)
+                        && motherFund.expectedProfitRate > MIN_PROFIT_RATE) {
                     targetMotherFundList.add(motherFund);
                 }
             }
@@ -156,7 +164,7 @@ public class Main {
 
 
         BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile)));
-        bufferedWriter.write("母基代码,母基名称,预期套利收益率,套利户数,T溢价率,T-1溢价率,T-2溢价率,分拆价,母基估值,母基净值,申购费率" +
+        bufferedWriter.write("母基代码,母基名称,预期套利收益率,申购费率,申购金额,确认金额,套利户数,T溢价率,T-1溢价率,T-2溢价率,分拆价,母基估值,母基净值" +
                 ",A基名称,A基代码,A价格,A涨幅,A净值,A折价率,A新增万份,A成交万元" +
                 ",B基名称,B基代码,B价格,B涨幅,B估值,B净值,B溢价率,B新增万份,B成交万元" +
                 ",A:B,跟踪指数,指数涨幅");
@@ -171,12 +179,16 @@ public class Main {
             MotherFund motherFund = motherFundList.get(i);
             AFund aFund = motherFund.aFund;
             BFund bFund = motherFund.bFund;
-
+            int minApply = mFundsMinApplyMap.containsKey(motherFund.cell.baseFundId) ? mFundsMinApplyMap.get(motherFund.cell.baseFundId) : DEFAULT_MIN_APPLY_VALUE;
+            int confirmValue = mFundsConfirmMap.containsKey(motherFund.cell.baseFundId) ? mFundsConfirmMap.get(motherFund.cell.baseFundId) : DEFAULT_MIN_CONFIRM_VALUE;
             StringBuilder sb = new StringBuilder();
             //母基
             sb.append(motherFund.cell.baseFundId).append(COMMA)
                     .append(motherFund.cell.baseFundNm).append(COMMA)
                     .append(percent2Format.format(motherFund.expectedProfitRate)).append(COMMA)
+                    .append(motherFund.cell.applyFee).append(COMMA)
+                    .append(minApply).append(COMMA)
+                    .append(confirmValue).append(COMMA)
                     .append(motherFund.applyAccountNum).append(COMMA)
                     .append(percent2Format.format(motherFund.splitPremiumRate)).append(COMMA)
                     .append(aFund.cell.fundaBaseEstDisRtT1).append(COMMA)
@@ -184,7 +196,6 @@ public class Main {
                     .append(dot4Format.format(motherFund.splitABPrice)).append(COMMA)
                     .append(dot4Format.format(motherFund.estimatedValue)).append(COMMA)
                     .append(motherFund.cell.price).append(COMMA)
-                    .append(motherFund.cell.applyFee).append(COMMA)
                     //A基
                     .append(aFund.cell.fundaName).append(COMMA)
                     .append(aFund.cell.fundaId).append(COMMA)
